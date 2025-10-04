@@ -154,8 +154,8 @@ class Scraparoni:
         url: str,
         schema: Type[BaseModel],
         instructions: Optional[str] = None,
-        **kwargs
-    ) -> BaseModel:
+        **kwargs    
+    ) -> ScraparoniResponse:
         """
         Fast scraping using PhantomScraper (curl-cffi)
 
@@ -166,11 +166,11 @@ class Scraparoni:
             **kwargs: PhantomScraper.fetch() arguments
 
         Returns:
-            Extracted and validated data
+            ScraperoniResponse with .json(), .dict(), .model() methods
         """
         html = self.phantom.fetch(url, **kwargs)
-
-        return self.weaver.extract(html, schema, instructions)
+        result = self.weaver.extract(html, schema, instructions)
+        return ScraparoniResponse(result)
 
     def scrape_with_browser(
         self,
@@ -180,7 +180,7 @@ class Scraparoni:
         wait_for: Optional[str] = None,
         headless: bool = True,
         **kwargs
-    ) -> BaseModel:
+    ) -> ScraparoniResponse:
         """
         Full browser scraping using BrowserScraper (Playwright)
 
@@ -193,12 +193,13 @@ class Scraparoni:
             **kwargs: BrowserScraper.fetch() arguments
 
         Returns:
-            Extracted and validated data
+            ScraperoniResponse with .json(), .dict(), .model() methods
         """
         with BrowserScraper(agent=self.agent, headless=headless) as browser:
             html = browser.fetch(url, wait_for=wait_for, **kwargs)
 
-        return self.weaver.extract(html, schema, instructions)
+        result = self.weaver.extract(html, schema, instructions)
+        return ScraparoniResponse(result)
 
     def scrape_with_interaction(
         self,
@@ -207,7 +208,7 @@ class Scraparoni:
         interactions: List[Dict[str, Any]],
         instructions: Optional[str] = None,
         headless: bool = True,
-    ) -> BaseModel:
+    ) -> ScraparoniResponse:
         """
         Scrape with custom browser interactions (clicks, scrolls, etc.)
 
@@ -219,12 +220,13 @@ class Scraparoni:
             headless: Run browser in headless mode
 
         Returns:
-            Extracted and validated data
+            ScraperoniResponse with .json(), .dict(), .model() methods
         """
         with BrowserScraper(agent=self.agent, headless=headless) as browser:
             html = browser.fetch_with_interaction(url, interactions)
 
-        return self.weaver.extract(html, schema, instructions)
+        result = self.weaver.extract(html, schema, instructions)
+        return ScraparoniResponse(result)
 
     # ========================================================================
     # BATCH OPERATIONS
@@ -237,7 +239,7 @@ class Scraparoni:
         instructions: Optional[str] = None,
         use_browser: bool = False,
         **kwargs
-    ) -> List[BaseModel]:
+    ) -> List[ScraparoniResponse]:
         """
         Scrape multiple URLs with same schema
 
@@ -249,7 +251,7 @@ class Scraparoni:
             **kwargs: Scraper arguments
 
         Returns:
-            List of extracted data models
+            List of ScraparoniResponse objects
         """
         results = []
         total = len(urls)
@@ -296,7 +298,7 @@ class Scraparoni:
         html: str,
         schema: Type[BaseModel],
         instructions: Optional[str] = None,
-    ) -> BaseModel:
+    ) -> ScraparoniResponse:
         """
         Extract data from pre-fetched HTML
 
@@ -375,7 +377,7 @@ def quick_scrape(
     schema: Type[BaseModel],
     model: str = "Qwen/Qwen2.5-7B-Instruct-1M",
     **kwargs
-) -> BaseModel:
+) -> ScraparoniResponse:
     """
     Quick one-off scraping without creating Scraparoni instance
 
@@ -386,7 +388,7 @@ def quick_scrape(
         **kwargs: Additional Scraparoni.scrape() arguments
 
     Returns:
-        Extracted data
+        ScraparoniResponse with .json(), .dict(), .model() methods
     """
     scraparoni = Scraparoni(model_name=model)
     return scraparoni.scrape(url, schema, **kwargs)
