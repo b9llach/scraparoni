@@ -217,3 +217,7 @@ __marimo__/
 
 # Claude
 CLAUDE.md
+.claude/
+.claude/settings.local.json
+.claude/settings.local.jsonc
+.claude/settings.local.jsonc
