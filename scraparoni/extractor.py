@@ -52,10 +52,15 @@ class ScraparoniExtractor:
             print(f"   🧠 Loading model config and initializing...", end="", flush=True)
             sys.stdout.flush()
 
+        # Disable transformers progress bars
+        import logging
+        logging.getLogger("transformers").setLevel(logging.ERROR)
+
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
             dtype=dtype,
             device_map=device_map
+            
         )
 
         if verbose:
@@ -66,7 +71,7 @@ class ScraparoniExtractor:
         html_content: str,
         schema: Type[BaseModel],
         instructions: Optional[str] = None,
-        max_length: int = 15000,
+        max_length: int = 25000,
         temperature: float = 0.2,
         max_tokens: int = 4096,
         smart_chunking: bool = True,
@@ -78,7 +83,7 @@ class ScraparoniExtractor:
             html_content: Raw HTML content to extract from
             schema: Pydantic model defining extraction schema
             instructions: Additional extraction instructions
-            max_length: Max HTML characters per chunk (default: 15k for speed)
+            max_length: Max HTML characters per chunk (default: 25k for speed)
             temperature: LLM temperature (lower = more deterministic)
             max_tokens: Max tokens to generate
             smart_chunking: Use intelligent chunking for large HTML (default: True)
@@ -284,7 +289,7 @@ class ScraparoniExtractor:
     def _build_system_prompt(self) -> str:
         """Build system prompt for extraction"""
         return (
-            "You are Silk, an expert web scraping AI. Your task is to extract structured data "
+            "You are Scraparoni, an expert web scraping AI. Your task is to extract structured data "
             "from HTML content with precision and accuracy. Follow the schema exactly. "
             "Return ONLY valid JSON wrapped in <json></json> tags. Be thorough but concise. "
             "If a field is not found, use null for optional fields or your best inference for required fields."
@@ -414,7 +419,7 @@ Extract the data and return it as valid JSON wrapped in <json></json> tags."""
         prompt: str,
         temperature: float = 0.7,
         max_tokens: int = 2048,
-        max_html_length: int = 15000,
+        max_html_length: int = 25000,
     ) -> str:
         """
         Run custom extraction prompt without schema validation
@@ -424,12 +429,12 @@ Extract the data and return it as valid JSON wrapped in <json></json> tags."""
             prompt: Custom extraction prompt
             temperature: Sampling temperature
             max_tokens: Max tokens to generate
-            max_html_length: Max HTML chars to send (default: 15k)
+            max_html_length: Max HTML chars to send (default: 25k)
 
         Returns:
             Raw LLM response
         """
-        system_prompt = "You are Silk, an expert web scraping and analysis AI."
+        system_prompt = "You are Scraparoni, an expert web scraping and analysis AI. Do not hallucinate and produce fake data if not seen in the HTML."
 
         user_prompt = f"""{prompt}
 
