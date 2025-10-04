@@ -1,0 +1,7 @@
+transformers
+torch
+accelerate
+curl-cffi
+playwright
+pydantic
+fake-useragent
