@@ -86,6 +86,7 @@ print(result.json())
 
 ```python
 from pydantic import BaseModel, Field
+from scraparoni import Scraparoni
 
 class Story(BaseModel):
     title: str = Field(description="Story title")
@@ -107,6 +108,7 @@ print(result.json())
 ```python
 from pydantic import BaseModel, Field
 from typing import List
+from scraparoni import Scraparoni
 
 class GameOdds(BaseModel):
     team1: str = Field(description="First team name")
@@ -117,65 +119,13 @@ class GameOdds(BaseModel):
 class AllGames(BaseModel):
     games: List[GameOdds] = Field(description="All games and odds")
 
+scraper = Scraparoni()
+
 result = scraper.scrape_with_browser(
     url="https://sportsbook.example.com",
     schema=AllGames,
     wait_for=".odds-container",  # Wait for element
     headless=True
-)
-```
-
-### 3. Interactive Scraping
-
-```python
-from pydantic import BaseModel, Field
-
-class Post(BaseModel):
-    title: str = Field(description="Post title")
-    content: str = Field(description="Post content")
-
-interactions = [
-    {"action": "click", "selector": ".load-more"},
-    {"action": "wait", "ms": 2000},
-    {"action": "scroll", "direction": "down", "times": 3},
-]
-
-result = scraper.scrape_with_interaction(
-    url="https://example.com",
-    schema=Post,
-    interactions=interactions
-)
-```
-
-### 4. Batch Scraping
-
-```python
-from pydantic import BaseModel, Field
-
-class Article(BaseModel):
-    title: str = Field(description="Article title")
-    summary: str = Field(description="Article summary")
-
-urls = ["https://site1.com", "https://site2.com", "https://site3.com"]
-
-results = scraper.scrape_many(
-    urls=urls,
-    schema=Article,
-    instructions="Extract main article"
-)
-
-for result in results:
-    print(result.json())
-```
-
-### 5. Debug with HTML Saving
-
-```python
-result = scraper.scrape(
-    url="https://example.com",
-    schema=MySchema,
-    save_html="debug.html",  # Saves HTML to file for inspection
-    use_browser=True
 )
 ```
 
